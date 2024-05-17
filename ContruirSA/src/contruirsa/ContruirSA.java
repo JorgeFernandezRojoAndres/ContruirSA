@@ -1,5 +1,6 @@
 
 package contruirsa;
+import static conexion.Conexion.getConexion;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -44,12 +45,31 @@ public class ContruirSA {
             }
         }
     }
-
+    private static void insertarEmpleado(String nombre, boolean estado) throws SQLException {
+        String query = "INSERT INTO empleado (nombre, estado) VALUES (?, ?)";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, nombre);
+            int estadoValue = estado ? 1 : 0; // Convertir booleano a 1 o 0
+            System.out.println("Insertando empleado: " + nombre + ", Estado: " + estadoValue);
+            statement.setInt(2, estadoValue);
+            statement.executeUpdate();
+            System.out.println("Empleado insertado con éxito: " + nombre + ", Estado: " + estadoValue);
+        } catch (SQLException e) {
+            System.out.println("Error al insertar empleado: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
-    public static Connection getConexion() throws SQLException {
-        String url = "jdbc:mysql://localhost:3306/construirsa?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
-        String user = "root";
-        String password = "";
-        return DriverManager.getConnection(url, user, password);
+    private static void insertarHerramienta(String nombre, int stock) throws SQLException {
+        String query = "INSERT INTO herramienta (nombre, stock, estado) VALUES (?, ?, ?)";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, nombre);
+            statement.setInt(2, stock);
+            statement.setInt(3, 1); // Agregar estado explícitamente con valor predeterminado 1
+            statement.executeUpdate();
+            System.out.println("Herramienta insertada con éxito: " + nombre);
+        } catch (SQLException e) {
+            System.out.println("Error al insertar herramienta: " + e.getMessage());
+            e.printStackTrace(); // Corregir a printStackTrace
+        }
+    }
 }
-    }
