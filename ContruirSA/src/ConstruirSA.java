@@ -1,15 +1,10 @@
-
-package contruirsa;
-import static conexion.Conexion.getConexion;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-
-
-public class ContruirSA {
+public class ConstruirSA {
 
     private static Connection connection;
 
@@ -43,8 +38,16 @@ public class ContruirSA {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        }
+        }
     }
+
+    public static Connection getConexion() throws SQLException {
+        String url = "jdbc:mysql://localhost:3306/construirsa?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+        String user = "root";
+        String password = "";
+        return DriverManager.getConnection(url, user, password);
+    }
+
     private static void insertarEmpleado(String nombre, boolean estado) throws SQLException {
         String query = "INSERT INTO empleado (nombre, estado) VALUES (?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
@@ -59,7 +62,8 @@ public class ContruirSA {
             e.printStackTrace();
         }
     }
-    private static void insertarHerramienta(String nombre, int stock) throws SQLException {
+
+   private static void insertarHerramienta(String nombre, int stock) throws SQLException {
         String query = "INSERT INTO herramienta (nombre, stock, estado) VALUES (?, ?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, nombre);
@@ -70,6 +74,34 @@ public class ContruirSA {
         } catch (SQLException e) {
             System.out.println("Error al insertar herramienta: " + e.getMessage());
             e.printStackTrace(); // Corregir a printStackTrace
+        }
+    }
+
+    private static void listarHerramientas() throws SQLException {
+        String query = "SELECT nombre, stock FROM herramienta WHERE stock > 10";
+        try (PreparedStatement statement = connection.prepareStatement(query); ResultSet resultSet = statement.executeQuery()) {
+            System.out.println("Herramientas con stock superior a 10:");
+            while (resultSet.next()) {
+                System.out.println("Herramienta: " + resultSet.getString("nombre") + ", Stock: " + resultSet.getInt("stock"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al listar herramientas: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private static void darDeBajaPrimerEmpleado() throws SQLException {
+        String query = "DELETE FROM empleado ORDER BY id_empleado LIMIT 1";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            int rowsAffected = statement.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Primer empleado dado de baja con éxito.");
+            } else {
+                System.out.println("No hay empleados para dar de baja.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al dar de baja al primer empleado: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
